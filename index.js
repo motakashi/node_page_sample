@@ -1,13 +1,51 @@
 const express = require('express');
+// const bodypaser = require('body-paser');
+// const session = require('express-session');
+const mysql = require('mysql');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+// const moment = require('moment');
+// const uuid = require('uuid');
+
+// const SALT_ROUNDS = 10;
+
+// DBの接続情報
+const port = 8000
+const dbcon = mysql.createConnection({
+  host: 'localhost',
+  user: 'nodesample',
+  password: 'Node-0912',
+  database: 'nodesample'
+});
 
 var app = express();
+app.use(express.static('./static'));
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
+
+app.use(session({secret:'abcdefgh', resave:false, saveUnintialized:false}));
+
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
+// トップページ
 app.get('/', function(req, res){
   res.render("index");
 });
 
-app.listen(8000, function(){
-  console.log("サーバを起動しました");
-})
+// ユーザ登録画面
+app.get('/regist', function(req, res){
+  res.render("regist");
+});
+
+// DBセッションの接続
+con.connect(function(err) {
+	if (err) {
+    throw err;
+  };
+	console.log('DBが接続されました');
+  app.listen(8000, function(){
+    console.log("サーバを起動しました");
+  })
+});
+
