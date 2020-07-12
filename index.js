@@ -11,10 +11,10 @@ const session = require('express-session');
 
 // DBの接続情報
 const port = 8000
-const dbcon = mysql.createConnection({
+const db = mysql.createConnection({
   host: 'localhost',
   user: 'nodesample',
-  password: 'Node-0912',
+  password: 'Node-007',
   database: 'nodesample'
 });
 
@@ -39,8 +39,9 @@ app.get('/regist', function(req, res){
 });
 
 // DBセッションの接続
-con.connect(function(err) {
+db.connect(function(err) {
 	if (err) {
+    console.log('DBの接続に失敗しました');
     throw err;
   };
 	console.log('DBが接続されました');
