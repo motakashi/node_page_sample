@@ -1,7 +1,7 @@
 const express = require('express');
 const util = require('util');
 // const bodypaser = require('body-paser');
-// const session = require('express-session');
+const session = require('express-session');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
@@ -12,10 +12,10 @@ const session = require('express-session');
 const SALT_ROUNDS = 10;
 
 // DBの接続情報
-const port = 8000
 const db = mysql.createConnection({
   connectionLimit: 10,
   host: 'localhost',
+  port: 3306,
   user: 'nodesample',
   password: 'Node-007',
   database: 'nodesample'
@@ -54,10 +54,16 @@ app.post('/regist', async function(req, res){
     res.render("regist");
     console.log("NewUser: { mail: " + req.body.mail+ ", password: " + hash + "}");
   } catch(err) {
+    var errMessage;
     if (err.code === "ER_DUP_ENTRY"){
-      res.render("regist", {error: "既に登録されているメールアドレスです"});
+      errMessage = {error: "既に登録されているメールアドレスです"};
+      console.log("既に登録されているメールアドレスが登録されようとしました");
+    }else{
+      errMessage = {error: "システムエラーにより登録に失敗しました"};
+      console.log("【システムエラー】アドレス登録に失敗しました");
     }
-    console.log("既に登録されているメールアドレス");
+    res.render("regist", {error: "既に登録されているメールアドレスです"});
+    console.log(err);
   };
 });
 
@@ -68,7 +74,7 @@ db.connect(function(err) {
     throw err;
   };
 	console.log('DBが接続されました');
-  app.listen(8000, function(){
+  app.listen(3000, function(){
     console.log("サーバを起動しました");
   })
 });
