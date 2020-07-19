@@ -1,7 +1,7 @@
 const express = require('express');
 const util = require('util');
 // const bodypaser = require('body-paser');
-const session = require('express-session');
+//const session = require('express-session');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
@@ -51,7 +51,7 @@ app.post('/regist', async function(req, res){
     const addNewUserSql = "INSERT INTO users SET ?";
     await db.query(addNewUserSql, { mail: req.body.mail, password: hash });
     db.end();
-    res.render("regist");
+    res.render("regist-successed");
     console.log("NewUser: { mail: " + req.body.mail+ ", password: " + hash + "}");
   } catch(err) {
     var errMessage;
@@ -66,6 +66,45 @@ app.post('/regist', async function(req, res){
     console.log(err);
   };
 });
+
+app.get('/login', function(req, res){
+  res.render('login');
+})
+
+app.post('/login', function(req, res){
+  try {
+      var passwordGetSql = "select password from users where mail = '" + req.body.mail +"'";
+      db.query(passwordGetSql, async function (err, result, fields) {
+      if (err){throw err};
+
+      // パスワードチェック
+      var loginOK = false;
+      if (result[0].password) {
+        loginOK = await bcrypt.compare(req.body.password, result[0].password);
+      };
+
+      // マイページへ
+      if (loginOK) {
+        req.session.user_id = result._id;
+        res.redirect("/");
+      }
+      else {
+        var errMessage;
+        errMessage = {
+          error: "メールアドレスもしくはパスワードに誤りがあります"
+        };
+        res.render('login', errMessage);
+      }
+    });
+  } catch(err){
+    var errMessage;
+    errMessage = {
+      error: "システムエラーがありました"
+    };
+    res.render('login', errMessage);
+    console.log('【システムエラー】ログインシステムにエラーがありました')
+  }
+})
 
 // DBセッションの接続
 db.connect(function(err) {
